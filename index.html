@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hvilans Interaktiva Trädkarta</title>
+    <meta name="author" content="Jonas Lundman">
+    <meta name="description" content="Klicka på olika kluster eller Pins för att läsa dess svenska namn, vetenskapliga namn och länk till Google Maps. Du kan söka på vetenskapliga eller svenska namn och bryta ned kartan till mindre kluster upp till en meter. Din egen position kan aktiveras för att lotsa dig fram till resultaten.">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- MarkerCluster CSS -->
@@ -32,7 +34,7 @@
         }
         .search-container input {
             padding: 6px;
-            width: 160px;
+            width: 140px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
@@ -57,15 +59,121 @@
         .gps-btn:hover {
             background: #d9edf7;
         }
+        .help-btn {
+            background: #fff8e8;
+            color: #aa7700;
+            border-color: #f1e8bc;
+        }
+        .help-btn:hover {
+            background: #fef3d9;
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal {
+            background: white;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: 80vh;
+        }
+        .modal-header {
+            padding: 12px 16px;
+            background: #f7f7f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-modal-btn:hover {
+            color: #000;
+        }
+        .modal-body {
+            overflow-y: auto;
+        }
+
+        /* Din önskade CSS för innehållscontainern */
+        .hvilan-content { 
+            padding: 1rem; 
+            color: #444334; 
+        }
+        .hvilan-content > * { 
+            margin-top: 1rem; 
+            margin-bottom: 0px; 
+        }
+        .hvilan-content > :first-child { 
+            margin-top: 0px; 
+        }
+
+        /* Popup länk-styling */
+        .leaflet-popup-content a {
+            display: inline-block;
+            margin-top: 4px;
+            color: #0077aa;
+            text-decoration: none;
+        }
+        .leaflet-popup-content a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="leaflet-bottom leaflet-left"><div class="leaflet-control-attribution leaflet-control" style="color: #ccc;">© Jonas Lundman</div></div>
+
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
         <button class="action-btn" onclick="clearSearch()" title="Rensa sökning">×</button>
         <button class="action-btn gps-btn" onclick="locateUser()" title="Visa min position">📍</button>
+        <button class="action-btn help-btn" onclick="toggleModal(true)" title="Om kartan">?</button>
     </div>
     <div id="map"></div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal-overlay" onclick="handleOutsideClick(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Om Hvilans Trädkarta</h3>
+                <button class="close-modal-btn" onclick="toggleModal(false)">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="hvilan-content">
+                    <p><strong>Hvilans interaktiva trädkarta</strong></p><p>Denna app är framtagen för trädgårdsutbildningen för att göra det enklare att hitta träd och växter live i parken.</p>
+                    <p>Använd sökfältet högst upp för att söka på svenska eller vetenskapliga namn (eller ID-nummer). Klicka på en markör för att få upp detaljer såsom svenskt och vetenskapligt namn, samt en direktlänk för vägbeskrivning.</p>
+                    <p>Klicka på platsknappen (📍) för att se din egna position på kartan i förhållande till vegetationen om du går vilse som de flesta SF klasserna gör.</p>
+                    <p>/ Jonas L SF55</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -896,7 +1004,7 @@
             {lat: 55.645002821, lon: 13.13132625, sv: 'syren \'Andenken an Ludwig Späth\'', vet: 'Syringa vulgaris \'Andenken an Ludwig Späth\'', id: '263'},
             {lat: 55.643745359, lon: 13.133347896, sv: 'tuja \'Woodwardii\'', vet: 'Thuja occidentalis \'Woodwardii\'', id: '487'},
             {lat: 55.645141025, lon: 13.132539887, sv: 'blåtry', vet: 'Lonicera caerulea', id: '506'},
-            {lat: 55.644665399, lon: 13.129396767, sv: 'prydnadsapel \'Red Jade\'', vet: 'Malus \'Red Jade\'', id: '259'},
+            {lat: 55.644665399, lon: 12.129396767, sv: 'prydnadsapel \'Red Jade\'', vet: 'Malus \'Red Jade\'', id: '259'},
             {lat: 55.643791964, lon: 13.132422577, sv: 'doftschersmin', vet: 'Philadelphus coronarius', id: '515'},
             {lat: 55.643797823, lon: 13.132387954, sv: 'doftschersmin', vet: 'Philadelphus coronarius', id: '516'},
             {lat: 55.643803408, lon: 13.132353432, sv: 'gordonschersmin', vet: 'Philadelphus lewisii', id: '517'},
@@ -926,7 +1034,7 @@
             {lat: 55.643646748, lon: 13.132467344, sv: 'spiraea betulifolia \'Tor\'', vet: 'Spiraea betulifolia \'Tor\'', id: '580'},
             {lat: 55.643662068, lon: 13.132380071, sv: 'praktspirea \'Dart\'s Red\'', vet: 'Spiraea japonica \'Dart\'s Red\'', id: '582'},
             {lat: 55.64366715, lon: 13.13220167, sv: 'praktspirea \'Goldflame\'', vet: 'Spiraea japonica \'Goldflame\'', id: '574'},
-            {lat: 55.64469455, lon: 13.129423552, sv: 'pelarasp', vet: 'Populus tremula \'Erecta\'', id: '855'},
+            {lat: 55.64469455, lon: 12.129423552, sv: 'pelarasp', vet: 'Populus tremula \'Erecta\'', id: '855'},
             {lat: 55.645311037, lon: 13.131396366, sv: 'naverlönn från den sista svenska naturliga växtplatsen', vet: 'Acer campestre fk AGGARP', id: '976'},
             {lat: 55.645966228, lon: 13.132663407, sv: 'virginsk hästkastanj', vet: 'Aesculus x neglecta \'Erythroblastos\'', id: '977'},
             {lat: 55.644523403, lon: 13.134519363, sv: 'helenae-ros \'Agda\'', vet: 'Rosa (Helenae-Gruppen) \'Agda\'', id: '978'},
@@ -946,9 +1054,17 @@
         treesData.forEach(function(tree) {
             if (tree.lat && tree.lon) {
                 var marker = L.marker([tree.lat, tree.lon]);
+                
+                // Använd det vetenskapliga namnet som sökterm för bild och AI (fallback till svenskt eller generiskt om det saknas)
+                var searchName = tree.vet ? tree.vet : (tree.sv ? tree.sv : 'träd');
+                var encodedQuery = encodeURIComponent(searchName);
+
                 var popupContent = "<b>Svenskt:</b> " + (tree.sv ? tree.sv : "<i>Saknas</i>") + "<br>" +
                                    "<b>Vetenskapligt:</b> <i>" + tree.vet + "</i><br>" +
-                                   "<a href='https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3' target='_blank'>Öppna i Google Maps</a>";
+                                   "<a href='https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3' target='_blank'>Öppna i Google Maps</a><br>" +
+                                   "<a href='https://www.google.com/search?q=" + encodedQuery + "&udm=2' target='_blank'>Visa bilder</a><br>" +
+                                   "<a href='https://www.google.com/search?q=" + encodedQuery + "&udm=50' target='_blank'>Fråga ai</a>";
+
                 marker.bindPopup(popupContent);
                 marker.treeData = tree;
                 markers.addLayer(marker);
@@ -997,10 +1113,8 @@
                 var lat = position.coords.latitude;
                 var lon = position.coords.longitude;
                 
-                // Zooma in på användaren på ganska nära håll (zoom 18)
                 map.setView([lat, lon], 18);
 
-                // Skapa eller uppdatera en markör för användarens position
                 if (userMarker) {
                     userMarker.setLatLng([lat, lon]);
                 } else {
@@ -1015,10 +1129,23 @@
                 }
                 userMarker.openPopup();
             }, function(error) {
-                alert("Kunde inte hämta dinposition. Kontrollera att platstjänster är aktiverade i mobilen.");
+                alert("Kunde inte hämta din position. Kontrollera att platstjänster är aktiverade i mobilen.");
             }, {
                 enableHighAccuracy: true
             });
+        }
+
+        // Funktioner för att öppna/stänga modal-fönstret
+        function toggleModal(open) {
+            var modal = document.getElementById('infoModal');
+            modal.style.display = open ? 'flex' : 'none';
+        }
+
+        function handleOutsideClick(event) {
+            var modal = document.getElementById('infoModal');
+            if (event.target === modal) {
+                toggleModal(false);
+            }
         }
     </script>
 </body>
