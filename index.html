@@ -1055,15 +1055,16 @@
             if (tree.lat && tree.lon) {
                 var marker = L.marker([tree.lat, tree.lon]);
                 
-                // Använd det vetenskapliga namnet som sökterm för bild och AI (fallback till svenskt eller generiskt om det saknas)
+                // Använd det vetenskapliga namnet som sökterm (fallback till svenskt eller generiskt)
                 var searchName = tree.vet ? tree.vet : (tree.sv ? tree.sv : 'träd');
                 var encodedQuery = encodeURIComponent(searchName);
 
+                // Använd dubbla citattecken runt href="..." för att undvika krock med enkla citattecken i t.ex. sortnamn ('Cabernet Cortis')
                 var popupContent = "<b>Svenskt:</b> " + (tree.sv ? tree.sv : "<i>Saknas</i>") + "<br>" +
                                    "<b>Vetenskapligt:</b> <i>" + tree.vet + "</i><br>" +
-                                   "<a href='https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3' target='_blank'>Öppna i Google Maps</a><br>" +
-                                   "<a href='https://www.google.com/search?q=" + encodedQuery + "&udm=2' target='_blank'>Visa bilder</a><br>" +
-                                   "<a href='https://www.google.com/search?q=" + encodedQuery + "&udm=50' target='_blank'>Fråga ai</a>";
+                                   "<a href=\"https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3\" target=\"_blank\">Öppna i Google Maps</a><br>" +
+                                   "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=2\" target=\"_blank\">Visa bilder</a><br>" +
+                                   "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai</a>";
 
                 marker.bindPopup(popupContent);
                 marker.treeData = tree;
