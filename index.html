@@ -1066,6 +1066,12 @@
             {lat: 55.645456562, lon: 13.13351014, sv: 'körsbärskornell', vet: 'Cornus mas', id: '401'},
         ];
 
+        // --- ADMIN INSTÄLLNINGAR ---
+        var admin = false; // Ändra till true för att visa ID och utökade AI-länkar i popup
+        var add_text_1 = ": Beskriv bladsättning, bladets form och struktur. Visa också bildexempel eller illustration."; // Test-text för Blad och struktur (t.ex. "blad")
+        var add_text_2 = ": Beskriv stam och knoppsättning, grenar och struktur. Visa också bildexempel eller illustration."; // Test-text för Stam och knoppar (t.ex. "bark")
+        // ---------------------------
+
         // ----------------------------------------------------
         // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
         // ----------------------------------------------------
@@ -1139,16 +1145,40 @@
             if (tree.lat && tree.lon) {
                 var marker = L.marker([tree.lat, tree.lon]);
                 
-                // Använd det vetenskapliga namnet som sökterm (fallback till svenskt eller generiskt)
+                // Namn för sökning (URL)
                 var searchName = tree.vet ? tree.vet : (tree.sv ? tree.sv : 'träd');
                 var encodedQuery = encodeURIComponent(searchName);
 
-                // Använd dubbla citattecken runt href="..." för att undvika krock med enkla citattecken i t.ex. sortnamn ('Cabernet Cortis')
-                var popupContent = "<b>Svenskt:</b> " + (tree.sv ? tree.sv : "<i>Saknas</i>") + "<br>" +
-                                   "<b>Vetenskapligt:</b> <i>" + tree.vet + "</i><br>" +
-                                   "<a href=\"https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3\" target=\"_blank\">Öppna i Google Maps</a><br>" +
-                                   "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=2\" target=\"_blank\">Visa bilder</a><br>" +
-                                   "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai</a>";
+                // Sanering av apostrofer så att JavaScript-klicken (onclick) inte kraschar
+                var safeSv = tree.sv ? tree.sv.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
+                var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
+
+                // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
+                var svText = tree.sv ? "<span onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan\">" + tree.sv + "</span>" : "<i>Saknas</i>";
+                var vetText = "<span onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan\"><i>" + tree.vet + "</i></span>";
+
+                // Börja bygga popup
+                var popupContent = "<b>Svenskt:</b> " + svText + "<br>" +
+                                   "<b>Vetenskapligt:</b> " + vetText + "<br>";
+
+                // Om admin = true, visa trädets ID ovanför Google Maps-länken
+                if (admin) {
+                    popupContent += "<b>ID:</b> " + tree.id + "<br>";
+                }
+
+                popupContent += "<a href=\"https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3\" target=\"_blank\">Öppna i Google Maps</a><br>" +
+                                "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=2\" target=\"_blank\">Visa bilder</a><br>";
+
+                // Om admin = true, lägg till de extra AI-länkarna med experiment-texten ovanför den vanliga AI-länken
+                if (admin) {
+                    var q1 = encodeURIComponent(searchName + (add_text_1 ? " " + add_text_1 : ""));
+                    var q2 = encodeURIComponent(searchName + (add_text_2 ? " " + add_text_2 : ""));
+                    
+                    popupContent += "<a href=\"https://www.google.com/search?q=" + q1 + "&udm=50\" target=\"_blank\">Blad och struktur</a><br>" +
+                                    "<a href=\"https://www.google.com/search?q=" + q2 + "&udm=50\" target=\"_blank\">Stam och knoppar</a><br>";
+                }
+
+                popupContent += "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai</a>";
 
                 marker.bindPopup(popupContent);
                 marker.treeData = tree;
@@ -1162,11 +1192,26 @@
         // ----------------------------------------------------
         // Filtreringslogik (Sök + Dropdown)
         // ----------------------------------------------------
+        // Funktion för att sömlöst söka när man klickar på ett namn i en popup
+        function quickSearch(searchTerm) {
+            if (!searchTerm) return;
+            
+            // Fyll i sökfältet och stäng aktuell popup
+            document.getElementById('searchInput').value = searchTerm;
+            map.closePopup();
+            
+            // Nollställ select-menyn så vi kan hitta alla av denna sort i HELA parken
+            document.getElementById('listSelect').value = '';
+            
+            // Aktivera filtreringen
+            filterMarkers();
+        }
+
+        // Huvudfunktion för filtrering
         function filterMarkers() {
             var query = document.getElementById('searchInput').value.toLowerCase();
             var selectedListStr = document.getElementById('listSelect').value.toLowerCase();
             
-            // Konvertera pipeline-strängen till en array (om select inte är default)
             var selectedPlants = [];
             if (selectedListStr !== "") {
                 selectedPlants = selectedListStr.split('|');
@@ -1176,25 +1221,26 @@
 
             var filtered = markerList.filter(function(m) {
                 var vetLower = m.treeData.vet.toLowerCase();
+                var treeId = m.treeData.id.toLowerCase();
                 
-                // 1. Kolla om fritext-sökningen matchar
+                // 1. Fritext-sökning (Sökrutan)
                 var matchQuery = true;
                 if (query.length > 0) {
                     matchQuery = m.treeData.sv.toLowerCase().includes(query) || 
                                  vetLower.includes(query) || 
-                                 m.treeData.id.toLowerCase().includes(query);
+                                 treeId.includes(query);
                 }
 
-                // 2. Kolla om växten ingår i veckans lista (Select)
+                // 2. Mixad list-sökning (Veckans träd)
                 var matchSelect = true;
                 if (selectedPlants.length > 0) {
-                    // Kollar om .vet-namnet innehåller någonting ur listan
                     matchSelect = selectedPlants.some(function(plantStr) {
-                        return vetLower.includes(plantStr.trim());
+                        var p = plantStr.trim();
+                        // Kontrollera om list-värdet matchar exakt som ett ID, ELLER ingår i det vetenskapliga namnet
+                        return (treeId === p) || vetLower.includes(p);
                     });
                 }
 
-                // För att en pin ska visas måste den klara BÅDA testerna (om de är ifyllda)
                 return matchQuery && matchSelect;
             });
 
@@ -1202,10 +1248,8 @@
 
             // Centrera och zooma kartan beroende på resultatet
             if (query.length === 0 && selectedListStr === "") {
-                // Allt är nollställt, återgå till standardvy
                 map.setView([55.6445, 13.1325], 17);
             } else if (filtered.length > 0) {
-                // Zooma in på de funna klustren/träden
                 var group = new L.featureGroup(filtered);
                 map.fitBounds(group.getBounds(), {
                     padding: [50, 50],
