@@ -26,11 +26,15 @@
             z-index: 1000;
             background: white;
             padding: 8px;
-            border-radius: 6px;
+            border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
             align-items: flex-start; /* Ser till att elementen lägger sig högst upp kant i kant */
             gap: 5px;
+            font-size: 16px;
+        }
+        .search-container * {
+            box-sizing: border-box;
         }
         .inputs-wrapper {
             display: flex;
@@ -41,14 +45,29 @@
             display: flex;
             gap: 5px;
         }
+
+        .buttons-wrapper button { 
+            padding: 2px;
+            width: 34px;
+            height: 34px;
+            font-size: 16px;
+            border: 1px solid #ccc; 
+            border-radius: 2px; 
+            background-color: #fff;
+        }
+
+        .buttons-wrapper button:hover, .buttons-wrapper button:focus { 
+            border-color: #0077aa; 
+            outline: none;
+        }
         
         /* Exakt samma design på input och select. Fix för iOS inzoomning (16px) */
         .search-container input, .search-container select {
-            padding: 6px;
+            padding: 2px 8px;
             width: 140px;
             box-sizing: border-box; /* Viktigt: hindrar padding från att ändra totala bredden */
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 2px;
             font-size: 16px; /* Stoppar iPhone-zoom! */
             font-family: inherit;
             height: 34px; /* Exakt samma höjd */
