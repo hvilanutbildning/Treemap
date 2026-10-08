@@ -1022,7 +1022,6 @@
             {lat: 55.645002821, lon: 13.13132625, sv: 'syren \'Andenken an Ludwig Späth\'', vet: 'Syringa vulgaris \'Andenken an Ludwig Späth\'', id: '263'},
             {lat: 55.643745359, lon: 13.133347896, sv: 'tuja \'Woodwardii\'', vet: 'Thuja occidentalis \'Woodwardii\'', id: '487'},
             {lat: 55.645141025, lon: 13.132539887, sv: 'blåtry', vet: 'Lonicera caerulea', id: '506'},
-            {lat: 55.644665399, lon: 12.129396767, sv: 'prydnadsapel \'Red Jade\'', vet: 'Malus \'Red Jade\'', id: '259'},
             {lat: 55.643791964, lon: 13.132422577, sv: 'doftschersmin', vet: 'Philadelphus coronarius', id: '515'},
             {lat: 55.643797823, lon: 13.132387954, sv: 'doftschersmin', vet: 'Philadelphus coronarius', id: '516'},
             {lat: 55.643803408, lon: 13.132353432, sv: 'gordonschersmin', vet: 'Philadelphus lewisii', id: '517'},
@@ -1052,7 +1051,7 @@
             {lat: 55.643646748, lon: 13.132467344, sv: 'spiraea betulifolia \'Tor\'', vet: 'Spiraea betulifolia \'Tor\'', id: '580'},
             {lat: 55.643662068, lon: 13.132380071, sv: 'praktspirea \'Dart\'s Red\'', vet: 'Spiraea japonica \'Dart\'s Red\'', id: '582'},
             {lat: 55.64366715, lon: 13.13220167, sv: 'praktspirea \'Goldflame\'', vet: 'Spiraea japonica \'Goldflame\'', id: '574'},
-            {lat: 55.64469455, lon: 12.129423552, sv: 'pelarasp', vet: 'Populus tremula \'Erecta\'', id: '855'},
+            {lat: 55.64469455, lon: 13.129423552, sv: 'pelarasp', vet: 'Populus tremula \'Erecta\'', id: '855'},
             {lat: 55.645311037, lon: 13.131396366, sv: 'naverlönn från den sista svenska naturliga växtplatsen', vet: 'Acer campestre fk AGGARP', id: '976'},
             {lat: 55.645966228, lon: 13.132663407, sv: 'virginsk hästkastanj', vet: 'Aesculus x neglecta \'Erythroblastos\'', id: '977'},
             {lat: 55.644523403, lon: 13.134519363, sv: 'helenae-ros \'Agda\'', vet: 'Rosa (Helenae-Gruppen) \'Agda\'', id: '978'},
@@ -1067,6 +1066,58 @@
             {lat: 55.645456562, lon: 13.13351014, sv: 'körsbärskornell', vet: 'Cornus mas', id: '401'},
         ];
 
+        // ----------------------------------------------------
+        // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
+        // ----------------------------------------------------
+        // Här lägger ni bara in en ny vecka längst ner. 
+        // Arrayen bygger automatiskt ut select-menyn.
+        var weeklyLists = [
+            {
+                namn: "Vecka 41: Barrväxter",
+                vaxter: [
+                    "Abies grandis",
+                    "Abies nordmanniana",
+                    "Picea abies",
+                    "Picea omorika",
+                    "Pinus sylvestris",
+                    "Pinus mugo",
+                    "Pinus nigra",
+                    "Taxus baccata",
+                    "Thuja occidentalis",
+                    "Larix decidua"
+                ]
+            },
+            {
+                namn: "Vecka 42: Lönnar m.m.",
+                vaxter: [
+                    "Acer platanoides",
+                    "Acer negundo",
+                    "Acer campestre",
+                    "Acer pseudoplatanus",
+                    "Fagus sylvatica",
+                    "Quercus robur",
+                    "Carpinus betulus",
+                    "Tilia cordata",
+                    "Fraxinus excelsior",
+                    "Ulmus glabra"
+                ]
+            }
+        ];
+
+        // ----------------------------------------------------
+        // Ladda in select-alternativen i UI
+        // ----------------------------------------------------
+        var selectElement = document.getElementById('listSelect');
+        weeklyLists.forEach(function(vecka) {
+            var opt = document.createElement('option');
+            opt.text = vecka.namn;
+            opt.value = vecka.vaxter.join('|'); // Skapar den "pipeline-separerade" strängen
+            selectElement.appendChild(opt);
+        });
+
+        // ----------------------------------------------------
+        // Initiera markörerna
+        // ----------------------------------------------------
         var markerList = [];
 
         treesData.forEach(function(tree) {
@@ -1093,6 +1144,9 @@
 
         map.addLayer(markers);
 
+        // ----------------------------------------------------
+        // Filtreringslogik (Sök + Dropdown)
+        // ----------------------------------------------------
         function filterMarkers() {
             var query = document.getElementById('searchInput').value.toLowerCase();
             var selectedListStr = document.getElementById('listSelect').value.toLowerCase();
@@ -1146,16 +1200,8 @@
         }
 
         // ----------------------------------------------------
-        // Ladda in select-alternativen i UI
+        // Funktioner för att Rensa, Hitta GPS och Modal
         // ----------------------------------------------------
-        var selectElement = document.getElementById('listSelect');
-        weeklyLists.forEach(function(vecka) {
-            var opt = document.createElement('option');
-            opt.text = vecka.namn;
-            opt.value = vecka.vaxter.join('|'); // Skapar den "pipeline-separerade" strängen
-            selectElement.appendChild(opt);
-        });
-
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('listSelect').value = ''; // Nollställ dropdown
@@ -1164,7 +1210,6 @@
             map.setView([55.6445, 13.1325], 17);
         }
 
-        // Funktion för att hitta användarens position via webbläsarens GPS
         var userMarker = null;
         function locateUser() {
             if (!navigator.geolocation) {
@@ -1197,7 +1242,6 @@
             });
         }
 
-        // Funktioner för att öppna/stänga modal-fönstret
         function toggleModal(open) {
             var modal = document.getElementById('infoModal');
             modal.style.display = open ? 'flex' : 'none';
@@ -1209,44 +1253,6 @@
                 toggleModal(false);
             }
         }
-
-        // ----------------------------------------------------
-        // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
-        // ----------------------------------------------------
-        // Här lägger ni bara in en ny vecka längst ner. 
-        // Arrayen bygger automatiskt ut select-menyn.
-        var weeklyLists = [
-            {
-                namn: "Vecka 41: Barrväxter",
-                vaxter: [
-                    "Abies grandis",
-                    "Abies nordmanniana",
-                    "Picea abies",
-                    "Picea omorika",
-                    "Pinus sylvestris",
-                    "Pinus mugo",
-                    "Pinus nigra",
-                    "Taxus baccata",
-                    "Thuja occidentalis",
-                    "Larix decidua"
-                ]
-            },
-            {
-                namn: "Vecka 42: Lönnar m.m.",
-                vaxter: [
-                    "Acer platanoides",
-                    "Acer negundo",
-                    "Acer campestre",
-                    "Acer pseudoplatanus",
-                    "Fagus sylvatica",
-                    "Quercus robur",
-                    "Carpinus betulus",
-                    "Tilia cordata",
-                    "Fraxinus excelsior",
-                    "Ulmus glabra"
-                ]
-            }
-        ];
         
     </script>
 </body>
