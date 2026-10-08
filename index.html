@@ -153,64 +153,7 @@
             text-decoration: underline;
         }
     </style>
-</head>
-<body>
-    <div class="leaflet-bottom leaflet-left"><div class="leaflet-control-attribution leaflet-control" style="color: #ccc;">© Jonas Lundman</div></div>
-
-    <div class="search-container">
-        <!-- Input och Select staplas i denna div -->
-        <div class="inputs-wrapper">
-            <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
-            <select id="listSelect" onchange="filterMarkers()">
-                <option value="">Välj växtlista...</option>
-                <!-- Fylls på automatiskt via JavaScript -->
-            </select>
-        </div>
-        <!-- Knapparna samlas i denna div -->
-        <div class="buttons-wrapper">
-            <button class="action-btn" onclick="clearSearch()" title="Rensa sökning">×</button>
-            <button class="action-btn gps-btn" onclick="locateUser()" title="Visa min position">📍</button>
-            <button class="action-btn help-btn" onclick="toggleModal(true)" title="Om kartan">?</button>
-        </div>
-    </div>
-    <div id="map"></div>
-
-    <!-- Info Modal -->
-    <div id="infoModal" class="modal-overlay" onclick="handleOutsideClick(event)">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Om Hvilans Trädkarta</h3>
-                <button class="close-modal-btn" onclick="toggleModal(false)">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="hvilan-content">
-                    <p><strong>Hvilans interaktiva trädkarta</strong></p><p>Denna app är framtagen för trädgårdsutbildningen för att göra det enklare att hitta träd och växter live i parken.</p>
-                    <p>Använd sökfältet högst upp för att söka på svenska eller vetenskapliga namn (eller ID-nummer). Klicka på en markör för att få upp detaljer såsom svenskt och vetenskapligt namn, samt en direktlänk för vägbeskrivning.</p>
-                    <p>Klicka på platsknappen (📍) för att se din egna position på kartan i förhållande till vegetationen om du går vilse som de flesta SF klasserna gör.</p>
-                    <p>/ Jonas L SF55</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- MarkerCluster JS -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    
     <script>
-        // Initiera kartan centrerad kring Hvilan
-        var map = L.map('map').setView([55.6445, 13.1325], 17);
-
-        // Satellitkarta som standard och enda bakgrund
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri',
-            maxZoom: 21
-        }).addTo(map);
-
-        // Skapa kluster-grupp för markörer
-        var markers = L.markerClusterGroup();
-
         // Datat för träden
         var treesData = [
             {lat: 55.643437127, lon: 13.133104954, sv: 'svarta vinbär \'Öjebyn\'', vet: 'Ribes nigrum \'Öjebyn\'', id: '817'},
@@ -1066,10 +1009,83 @@
             {lat: 55.645456562, lon: 13.13351014, sv: 'körsbärskornell', vet: 'Cornus mas', id: '401'},
         ];
 
+    </script>
+</head>
+<body>
+    <div class="leaflet-bottom leaflet-left"><div class="leaflet-control-attribution leaflet-control" style="color: #ccc;">© Jonas Lundman</div></div>
+
+    <div class="search-container">
+        <!-- Input och Select staplas i denna div -->
+        <div class="inputs-wrapper">
+            <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
+            <select id="listSelect" onchange="filterMarkers()">
+                <option value="">Välj växtlista...</option>
+                <!-- Fylls på automatiskt via JavaScript -->
+            </select>
+        </div>
+        <!-- Knapparna samlas i denna div -->
+        <div class="buttons-wrapper">
+            <button class="action-btn" onclick="clearSearch()" title="Rensa sökning">×</button>
+            <button class="action-btn gps-btn" onclick="locateUser()" title="Visa min position">📍</button>
+            <button class="action-btn help-btn" onclick="toggleModal(true)" title="Om kartan">?</button>
+        </div>
+    </div>
+    <div id="map"></div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal-overlay" onclick="handleOutsideClick(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Om Hvilans Trädkarta</h3>
+                <button class="close-modal-btn" onclick="toggleModal(false)">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="hvilan-content">
+                    <p><strong>Hvilans interaktiva trädkarta</strong></p><p>Denna app är framtagen för trädgårdsutbildningen för att göra det enklare att hitta träd och växter live i parken.</p>
+                    <p>Använd sökfältet högst upp för att söka på svenska eller vetenskapliga namn (eller ID-nummer). Klicka på en markör för att få upp detaljer såsom svenskt och vetenskapligt namn, samt en direktlänk för vägbeskrivning.</p>
+                    <p>Klicka på platsknappen (📍) för att se din egna position på kartan i förhållande till vegetationen om du går vilse som de flesta SF klasserna gör.</p>
+                    <p>/ Jonas L SF55</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- MarkerCluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    
+    <script>
+        // Initiera kartan centrerad kring Hvilan
+        var map = L.map('map').setView([55.6445, 13.1325], 17);
+
+        // Satellitkarta som standard och enda bakgrund
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri',
+            maxZoom: 21
+        }).addTo(map);
+
+        // Skapa kluster-grupp för markörer
+        var markers = L.markerClusterGroup();
+
+        // DATA
+        
         // --- ADMIN INSTÄLLNINGAR ---
-        var admin = true; // Ändra till true för att visa ID och utökade AI-länkar i popup
-        var add_text_1 = ": Beskriv bladsättning, bladets form och struktur. Visa också bildexempel eller illustration."; // Test-text för Blad och struktur (t.ex. "blad")
-        var add_text_2 = ": Beskriv stam och knoppsättning, grenar och struktur. Visa också bildexempel eller illustration."; // Test-text för Stam och knoppar (t.ex. "bark")
+        
+        var text_1 = ": Beskriv bladsättning, bladets form och struktur. Börja med att visa bildexempel eller illustration av svaret längst upp."; // Test-text för Blad och struktur (t.ex. "blad")
+        var text_2 = ": Beskriv stam och knoppsättning, grenar och struktur. Visa också bildexempel eller illustration."; // Test-text för Stam och knoppar (t.ex. "bark")
+
+        // --- ADMIN INSTÄLLNINGAR (Läs av URL:en automatiskt) ---
+        var urlParams = new URLSearchParams(window.URLSearchParams ? window.location.search : window.location.search);
+        
+        // Sätter admin till true om URL innehåller ?admin=1 eller ?admin=true
+        var admin = urlParams.get('admin') === '1' || urlParams.get('admin') === 'true';
+        
+        // Du kan även skicka med experiment-text direkt via URL
+        // Exempel: index.html?admin=1&t1=blad%20och%20struktur
+        var add_text_1 = urlParams.get('t1') || text_1; 
+        var add_text_2 = urlParams.get('t2') || text_2; 
+        // --------------------------------------------------------
         // ---------------------------
 
         // ----------------------------------------------------
@@ -1154,8 +1170,8 @@
                 var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
-                var svText = tree.sv ? "<span onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan\">" + tree.sv + "</span>" : "<i>Saknas</i>";
-                var vetText = "<span onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan\"><i>" + tree.vet + "</i></span>";
+                var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan efter enbart detta svenska namn\">" + tree.sv + "</span>" : "<i>Saknas</i>";
+                var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan efter enbart detta vetenskapliga namn\"><i>" + tree.vet + "</i></span>";
 
                 // Börja bygga popup
                 var popupContent = "<b>Svenskt:</b> " + svText + "<br>" +
@@ -1175,10 +1191,10 @@
                     var q2 = encodeURIComponent(searchName + (add_text_2 ? " " + add_text_2 : ""));
                     
                     popupContent += "<a href=\"https://www.google.com/search?q=" + q1 + "&udm=50\" target=\"_blank\">Blad och struktur</a><br>" +
-                                    "<a href=\"https://www.google.com/search?q=" + q2 + "&udm=50\" target=\"_blank\">Stam och knoppar</a><br>";
+                                    "<a href=\"https://www.google.com/search?q=" + q2 + "&udm=50\" target=\"_blank\">Stam, grenar och knoppar</a><br>";
                 }
 
-                popupContent += "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai</a>";
+                popupContent += "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai med enbart vetenskapligt namn</a>";
 
                 marker.bindPopup(popupContent);
                 marker.treeData = tree;
