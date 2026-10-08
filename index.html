@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hvilans Interaktiva Trädkarta</title>
     <meta name="author" content="Jonas Lundman">
     <meta name="description" content="Klicka på olika kluster eller Pins för att läsa dess svenska namn, vetenskapliga namn och länk till Google Maps. Du kan söka på vetenskapliga eller svenska namn och bryta ned kartan till mindre kluster upp till en meter. Din egen position kan aktiveras för att lotsa dig fram till resultaten.">
@@ -37,7 +37,9 @@
             width: 140px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
+            -webkit-appearance: none; 
+            appearance: none;
         }
         .action-btn {
             background: #eee;
@@ -46,7 +48,9 @@
             cursor: pointer;
             padding: 6px 10px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
+            -webkit-appearance: none; 
+            appearance: none;
         }
         .action-btn:hover {
             background: #ddd;
@@ -55,6 +59,8 @@
             background: #e8f4f8;
             color: #0077aa;
             border-color: #bce8f1;
+            -webkit-appearance: none; 
+            appearance: none;
         }
         .gps-btn:hover {
             background: #d9edf7;
@@ -63,6 +69,8 @@
             background: #fff8e8;
             color: #aa7700;
             border-color: #f1e8bc;
+            -webkit-appearance: none; 
+            appearance: none;
         }
         .help-btn:hover {
             background: #fef3d9;
