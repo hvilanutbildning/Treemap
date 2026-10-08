@@ -29,51 +29,51 @@
             border-radius: 6px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* Ser till att elementen lägger sig högst upp kant i kant */
             gap: 5px;
         }
-        .search-container input {
+        .inputs-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .buttons-wrapper {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Exakt samma design på input och select. Fix för iOS inzoomning (16px) */
+        .search-container input, .search-container select {
             padding: 6px;
             width: 140px;
+            box-sizing: border-box; /* Viktigt: hindrar padding från att ändra totala bredden */
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
-            -webkit-appearance: none; 
+            font-size: 16px; /* Stoppar iPhone-zoom! */
+            font-family: inherit;
+            height: 34px; /* Exakt samma höjd */
+            margin: 0;
+            background-color: white;
+            
+            /* Tar bort standardutseendet från telefonen */
+            -webkit-appearance: none;
+            -moz-appearance: none;
             appearance: none;
         }
-        .action-btn {
-            background: #eee;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+
+        /* Eftersom "appearance: none" tar bort standard-pilen på select, ritar vi dit en egen snygg pil via bakgrunden */
+        .search-container select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 24px; /* Håller texten borta från pilen */
             cursor: pointer;
-            padding: 6px 10px;
-            font-weight: bold;
-            font-size: 16px;
-            -webkit-appearance: none; 
-            appearance: none;
+            color: #444334;
         }
-        .action-btn:hover {
-            background: #ddd;
-        }
-        .gps-btn {
-            background: #e8f4f8;
-            color: #0077aa;
-            border-color: #bce8f1;
-            -webkit-appearance: none; 
-            appearance: none;
-        }
-        .gps-btn:hover {
-            background: #d9edf7;
-        }
-        .help-btn {
-            background: #fff8e8;
-            color: #aa7700;
-            border-color: #f1e8bc;
-            -webkit-appearance: none; 
-            appearance: none;
-        }
-        .help-btn:hover {
-            background: #fef3d9;
+        
+        .search-container select:focus, .search-container input:focus {
+            outline: none;
+            border-color: #0077aa;
         }
 
         /* Modal styling */
@@ -158,10 +158,20 @@
     <div class="leaflet-bottom leaflet-left"><div class="leaflet-control-attribution leaflet-control" style="color: #ccc;">© Jonas Lundman</div></div>
 
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
-        <button class="action-btn" onclick="clearSearch()" title="Rensa sökning">×</button>
-        <button class="action-btn gps-btn" onclick="locateUser()" title="Visa min position">📍</button>
-        <button class="action-btn help-btn" onclick="toggleModal(true)" title="Om kartan">?</button>
+        <!-- Input och Select staplas i denna div -->
+        <div class="inputs-wrapper">
+            <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
+            <select id="listSelect" onchange="filterMarkers()">
+                <option value="">Välj växtlista...</option>
+                <!-- Fylls på automatiskt via JavaScript -->
+            </select>
+        </div>
+        <!-- Knapparna samlas i denna div -->
+        <div class="buttons-wrapper">
+            <button class="action-btn" onclick="clearSearch()" title="Rensa sökning">×</button>
+            <button class="action-btn gps-btn" onclick="locateUser()" title="Visa min position">📍</button>
+            <button class="action-btn help-btn" onclick="toggleModal(true)" title="Om kartan">?</button>
+        </div>
     </div>
     <div id="map"></div>
 
@@ -1085,17 +1095,48 @@
 
         function filterMarkers() {
             var query = document.getElementById('searchInput').value.toLowerCase();
+            var selectedListStr = document.getElementById('listSelect').value.toLowerCase();
+            
+            // Konvertera pipeline-strängen till en array (om select inte är default)
+            var selectedPlants = [];
+            if (selectedListStr !== "") {
+                selectedPlants = selectedListStr.split('|');
+            }
+
             markers.clearLayers();
-            
+
             var filtered = markerList.filter(function(m) {
-                return m.treeData.sv.toLowerCase().includes(query) || 
-                       m.treeData.vet.toLowerCase().includes(query) || 
-                       m.treeData.id.toLowerCase().includes(query);
+                var vetLower = m.treeData.vet.toLowerCase();
+                
+                // 1. Kolla om fritext-sökningen matchar
+                var matchQuery = true;
+                if (query.length > 0) {
+                    matchQuery = m.treeData.sv.toLowerCase().includes(query) || 
+                                 vetLower.includes(query) || 
+                                 m.treeData.id.toLowerCase().includes(query);
+                }
+
+                // 2. Kolla om växten ingår i veckans lista (Select)
+                var matchSelect = true;
+                if (selectedPlants.length > 0) {
+                    // Kollar om .vet-namnet innehåller någonting ur listan
+                    matchSelect = selectedPlants.some(function(plantStr) {
+                        return vetLower.includes(plantStr.trim());
+                    });
+                }
+
+                // För att en pin ska visas måste den klara BÅDA testerna (om de är ifyllda)
+                return matchQuery && matchSelect;
             });
-            
+
             markers.addLayers(filtered);
 
-            if (query.length > 0 && filtered.length > 0) {
+            // Centrera och zooma kartan beroende på resultatet
+            if (query.length === 0 && selectedListStr === "") {
+                // Allt är nollställt, återgå till standardvy
+                map.setView([55.6445, 13.1325], 17);
+            } else if (filtered.length > 0) {
+                // Zooma in på de funna klustren/träden
                 var group = new L.featureGroup(filtered);
                 map.fitBounds(group.getBounds(), {
                     padding: [50, 50],
@@ -1104,8 +1145,20 @@
             }
         }
 
+        // ----------------------------------------------------
+        // Ladda in select-alternativen i UI
+        // ----------------------------------------------------
+        var selectElement = document.getElementById('listSelect');
+        weeklyLists.forEach(function(vecka) {
+            var opt = document.createElement('option');
+            opt.text = vecka.namn;
+            opt.value = vecka.vaxter.join('|'); // Skapar den "pipeline-separerade" strängen
+            selectElement.appendChild(opt);
+        });
+
         function clearSearch() {
             document.getElementById('searchInput').value = '';
+            document.getElementById('listSelect').value = ''; // Nollställ dropdown
             markers.clearLayers();
             markers.addLayers(markerList);
             map.setView([55.6445, 13.1325], 17);
@@ -1156,6 +1209,45 @@
                 toggleModal(false);
             }
         }
+
+        // ----------------------------------------------------
+        // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
+        // ----------------------------------------------------
+        // Här lägger ni bara in en ny vecka längst ner. 
+        // Arrayen bygger automatiskt ut select-menyn.
+        var weeklyLists = [
+            {
+                namn: "Vecka 41: Barrväxter",
+                vaxter: [
+                    "Abies grandis",
+                    "Abies nordmanniana",
+                    "Picea abies",
+                    "Picea omorika",
+                    "Pinus sylvestris",
+                    "Pinus mugo",
+                    "Pinus nigra",
+                    "Taxus baccata",
+                    "Thuja occidentalis",
+                    "Larix decidua"
+                ]
+            },
+            {
+                namn: "Vecka 42: Lönnar m.m.",
+                vaxter: [
+                    "Acer platanoides",
+                    "Acer negundo",
+                    "Acer campestre",
+                    "Acer pseudoplatanus",
+                    "Fagus sylvatica",
+                    "Quercus robur",
+                    "Carpinus betulus",
+                    "Tilia cordata",
+                    "Fraxinus excelsior",
+                    "Ulmus glabra"
+                ]
+            }
+        ];
+        
     </script>
 </body>
 </html>
