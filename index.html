@@ -248,15 +248,28 @@
             margin-top: 0.5em;
             margin-bottom: 0.5em;
         }
+
+        .leaflet-popup-content .week-link {
+            display: none;
+            color: #d9534f; /* Exempel: En avvikande färg för att synas bra */
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+        }
+
+        body.week-active .leaflet-popup-content .week-link {
+            display: block;
+        }
+
+        
         /* Dölj "Tillbaka"-länken som standard när vi inte är i ett "tillbaka-läge" */
         .leaflet-popup-content .previous-link {
             display: none;
             color: #d9534f; /* Exempel: En avvikande färg för att synas bra */
             cursor: pointer;
             font-weight: bold;
-            margin-top: 6px;
+            margin-bottom: 0.5em;
         }
-
         /* När body har klassen .previous-active tänds länken upp i alla popups! */
         body.previous-active .leaflet-popup-content .previous-link {
             display: block;
@@ -264,6 +277,11 @@
         body.previous-active .leaflet-popup-content .name-link em {
             display: none;
         }
+        body.previous-active .leaflet-popup-content .week-link {
+            display: none;
+        }
+
+        
     </style>
     <script>
         // Datat för träden
@@ -1239,8 +1257,8 @@
                 var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan<br></span>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
-                var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Visa alla</em></span>" : "<i>Saknas</i>";
-                var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Vetenskapliga namn\"><i>" + tree.vet + "</i><em>Visa alla</em></span>";
+                var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Alla</em></span>" : "<i>Saknas</i>";
+                var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Vetenskapliga namn\"><i>" + tree.vet + "</i><em>Alla</em></span>";
 
                 // Börja bygga popup
                 var popupContent = previousLinkHtml + svText + "<br>" +
