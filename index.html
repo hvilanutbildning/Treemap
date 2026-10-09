@@ -37,31 +37,18 @@
             {
                 namn: "Test: Några Barrväxter",
                 vaxter: [
-                    "Abies grandis",
-                    "Abies nordmanniana",
-                    "Picea abies",
-                    "Picea omorika",
-                    "Pinus sylvestris",
-                    "Pinus mugo",
-                    "Pinus nigra",
-                    "Taxus baccata",
-                    "Thuja occidentalis",
+                    "Abies ",
+                    "Picea ",
+                    "Pinus ",
+                    "Taxus ",
+                    "Thuja ",
                     "Larix decidua"
                 ]
             },
             {
                 namn: "Test: Lönnar (Acer).",
                 vaxter: [
-                    "Acer platanoides",
-                    "Acer negundo",
-                    "Acer campestre",
-                    "Acer pseudoplatanus",
-                    "Fagus sylvatica",
-                    "Quercus robur",
-                    "Carpinus betulus",
-                    "Tilia cordata",
-                    "Fraxinus excelsior",
-                    "Ulmus glabra"
+                    "Acer "
                 ]
             }
         ];
@@ -1256,10 +1243,7 @@
 
                 // Hidden or visible by CSS
                 var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan<br></span>";
-                // Hämta det aktiva namnet från dropdown om en lista är vald
-                var selectElement = document.getElementById('listSelect');
-                var currentListText = (selectElement && selectElement.value !== "") ? selectElement.options[selectElement.selectedIndex].text : "";
-                var activeListInfoHtml = "<div class=\"active-list-info\">Växtlista <span>" + currentListText + "</span></div>";
+                var activeListInfoHtml = "<div class=\"active-list-info\">Växtlista</div>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Alla</em></span>" : "<i>Saknas</i>";
