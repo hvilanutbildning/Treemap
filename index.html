@@ -247,6 +247,19 @@
             margin-top: 0.5em;
             margin-bottom: 0.5em;
         }
+        /* Dölj "Tillbaka"-länken som standard när vi inte är i ett "tillbaka-läge" */
+        .leaflet-popup-content .previous-link {
+            display: none;
+            color: #d9534f; /* Exempel: En avvikande färg för att synas bra */
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        /* När body har klassen .previous-active tänds länken upp i alla popups! */
+        body.previous-active .leaflet-popup-content .previous-link {
+            display: inline-block;
+        }
     </style>
     <script>
         // Datat för träden
@@ -1113,8 +1126,8 @@
         <!-- Input och Select staplas i denna div -->
         <div class="inputs-wrapper">
             <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
-            <select id="listSelect" onchange="document.getElementById('searchInput').value = ''; filterMarkers()">
-                <option value="">Välj växtlista...</option>
+            <select id="listSelect" onchange="onListChange()">
+                <option value="">Eller välj växtlista...</option>
                 <!-- Fylls på automatiskt via JavaScript -->
             </select>
         </div>
@@ -1180,6 +1193,11 @@
         // Exempel: index.html?admin=1&t1=blad%20och%20struktur
         var add_text_1 = urlParams.get('t1') || text_1; 
         var add_text_2 = urlParams.get('t2') || text_2; 
+
+        // --- GLOBAL MINNES-HANTERING FÖR LISTOR ---
+        var latestSelectedList = ""; // Sparar alltid senaste aktiva list-värdet under sessionen
+        // ------------------------------------------
+        
         // --------------------------------------------------------
         // ---------------------------
 
@@ -1213,12 +1231,15 @@
                 var safeSv = tree.sv ? tree.sv.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
                 var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
 
+                // Hidden or visible by CSS
+                var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">« Tillbaka till växtlistan</span><br>";
+
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Visa alla</em></span>" : "<i>Saknas</i>";
                 var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Vetenskapliga namn\"><i>" + tree.vet + "</i><em>Visa alla</em></span>";
 
                 // Börja bygga popup
-                var popupContent = "" + svText + "<br>" +
+                var popupContent = previousLinkHtml + svText + "<br>" +
                                    "" + vetText + "<hr>";
 
                 // Om admin = true, visa trädets ID ovanför Google Maps-länken
@@ -1252,6 +1273,19 @@
         // ----------------------------------------------------
         // Filtreringslogik (Sök + Dropdown)
         // ----------------------------------------------------
+
+        // När man väljer i dropdown-menyn
+        function onListChange() {
+            var selectVal = document.getElementById('listSelect').value;
+            
+            if (selectVal !== "") {
+                latestSelectedList = selectVal; // Spara i det globala sessionst-minnet
+                document.getElementById('searchInput').value = ''; // Rensa sök vid listbyte
+            }
+            
+            filterMarkers();
+        }
+        
         // Funktion för att sömlöst söka när man klickar på ett namn i en popup
         function quickSearch(searchTerm) {
             if (!searchTerm) return;
@@ -1262,8 +1296,31 @@
             
             // Nollställ select-menyn så vi kan hitta alla av denna sort i HELA parken
             document.getElementById('listSelect').value = '';
+
+            // Aktivera body-klassen eftersom vi nu har lämnat den aktiva listan för en frisökning
+            if (latestSelectedList !== "") {
+                document.body.classList.add('previous-active');
+            }
             
             // Aktivera filtreringen
+            filterMarkers();
+
+            
+        }
+
+        // Knappen för att hoppa tillbaka till senaste listan
+        function returnToLatestList() {
+            if (latestSelectedList === "") return;
+            
+            // Sätt tillbaka värdet i select-menyn
+            document.getElementById('listSelect').value = latestSelectedList;
+            // Töm sökfältet
+            document.getElementById('searchInput').value = '';
+            
+            // Stäng av "tillbaka-läget" på kroppen
+            document.body.classList.remove('previous-active');
+            
+            map.closePopup();
             filterMarkers();
         }
 
@@ -1323,7 +1380,10 @@
         // ----------------------------------------------------
         function clearSearch() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('listSelect').value = ''; // Nollställ dropdown
+            document.getElementById('listSelect').value = '';
+            latestSelectedList = ""; // Nollställ sessionst-minnet helt
+            document.body.classList.remove('previous-active'); // Ta bort klassen
+            
             markers.clearLayers();
             markers.addLayers(markerList);
             map.setView([55.6445, 13.1325], 17);
