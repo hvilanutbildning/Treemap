@@ -35,6 +35,21 @@
                 ]
             }, 
             {
+                namn: "B7 Buskar Höst",
+                vaxter: [
+                    "kinesisk strimlönn",
+                    "svartaronia",
+                    "636",
+                    "617",
+                    "514",
+                    "havtorn",
+                    "646",
+                    "512",
+                    "817",
+                    "Brokspirea"
+                ]
+            }, 
+            {
                 namn: "Test: Några Barrväxter",
                 vaxter: [
                     "Abies ",
@@ -1258,6 +1273,8 @@
                     popupContent += "<small>ID:  " + tree.id + "</small><br>";
                 }
 
+                
+
                 popupContent += "<a href=\"https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3\" target=\"_blank\">Öppna i Google Maps</a><br>" +
                                 "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=2\" target=\"_blank\">Visa bilder</a><br>";
 
@@ -1271,6 +1288,14 @@
                 }
 
                 popupContent += "<a href=\"https://www.google.com/search?q=" + encodedQuery + "&udm=50\" target=\"_blank\">Fråga ai med enbart vetenskapligt namn</a>";
+
+                // Om admin = true, lägg till en "Rapportera fel"-länk längst ner
+                if (admin) {
+                    var reportSubject = encodeURIComponent("Felrapport: Växt ID " + tree.id + " (" + (tree.vet || "okänd") + ")");
+                    var reportBody = encodeURIComponent("Hej Jonas,\n\nJag har hittat ett fel gällande följande träd:\n- ID: " + tree.id + "\n- Vetenskapligt namn: " + (tree.vet || "saknas") + "\n- Svenskt namn: " + (tree.sv || "saknas") + "\n- Koordinater: " + tree.lat + ", " + tree.lon + "\n\nBeskrivning av felet:\n");
+                    
+                    popupContent += "<br><hr><a href=\"mailto:jonas@lundman.se?subject=" + reportSubject + "&body=" + reportBody + "\">Rapportera fel</a>";
+                }
 
                 marker.bindPopup(popupContent);
                 marker.treeData = tree;
