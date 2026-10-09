@@ -11,6 +11,61 @@
     <!-- MarkerCluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
+    <script>
+        // ----------------------------------------------------
+        // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
+        // ----------------------------------------------------
+        // Här lägger ni bara in en ny vecka längst ner. 
+        // Arrayen bygger automatiskt ut select-menyn.
+        var weeklyLists = [
+            {
+                namn: "Vecka 41: Barrväxter",
+                vaxter: [
+                    "Abies grandis",
+                    "Abies nordmanniana",
+                    "Picea abies",
+                    "Picea omorika",
+                    "Pinus sylvestris",
+                    "Pinus mugo",
+                    "Pinus nigra",
+                    "Taxus baccata",
+                    "Thuja occidentalis",
+                    "Larix decidua"
+                ]
+            },
+            {
+                namn: "Vecka 42: Lönnar m.m.",
+                vaxter: [
+                    "Acer platanoides",
+                    "Acer negundo",
+                    "Acer campestre",
+                    "Acer pseudoplatanus",
+                    "Fagus sylvatica",
+                    "Quercus robur",
+                    "Carpinus betulus",
+                    "Tilia cordata",
+                    "Fraxinus excelsior",
+                    "Ulmus glabra"
+                ]
+            },
+            {
+                namn: "B8 Buskar Höst",
+                vaxter: [
+                    "Acer palmatum",
+                    "596",
+                    "125",
+                    "Elaeagnus angustifolia",
+                    "Euonymus alatus",
+                    "862",
+                    "138",
+                    "Neillia (Stephanandra) incisa \'Crispa\'",
+                    "490",
+                    "Hydrangea arborescens \'Annabelle\'"
+                ]
+            }
+        ];
+    </script>
     <style>
         html, body, #map {
             width: 100%;
@@ -179,6 +234,18 @@
         }
         .leaflet-popup-content a:hover {
             text-decoration: underline;
+        }
+        .leaflet-popup-content span.name-link {
+            letter-spacing: 0.03em;
+        }
+        .leaflet-popup-content span.name-link em {
+            float: right;
+            margin-left: 5px;
+            color: #0077aa;
+        }
+        .leaflet-popup-content hr {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
         }
     </style>
     <script>
@@ -1116,58 +1183,7 @@
         // --------------------------------------------------------
         // ---------------------------
 
-        // ----------------------------------------------------
-        // HUVUD-ARRAY FÖR VECKANS VÄXTER (Administration)
-        // ----------------------------------------------------
-        // Här lägger ni bara in en ny vecka längst ner. 
-        // Arrayen bygger automatiskt ut select-menyn.
-        var weeklyLists = [
-            {
-                namn: "Vecka 41: Barrväxter",
-                vaxter: [
-                    "Abies grandis",
-                    "Abies nordmanniana",
-                    "Picea abies",
-                    "Picea omorika",
-                    "Pinus sylvestris",
-                    "Pinus mugo",
-                    "Pinus nigra",
-                    "Taxus baccata",
-                    "Thuja occidentalis",
-                    "Larix decidua"
-                ]
-            },
-            {
-                namn: "Vecka 42: Lönnar m.m.",
-                vaxter: [
-                    "Acer platanoides",
-                    "Acer negundo",
-                    "Acer campestre",
-                    "Acer pseudoplatanus",
-                    "Fagus sylvatica",
-                    "Quercus robur",
-                    "Carpinus betulus",
-                    "Tilia cordata",
-                    "Fraxinus excelsior",
-                    "Ulmus glabra"
-                ]
-            },
-            {
-                namn: "B8 Buskar Höst",
-                vaxter: [
-                    "Acer palmatum",
-                    "596",
-                    "125",
-                    "Elaeagnus angustifolia",
-                    "Euonymus alatus",
-                    "862",
-                    "138",
-                    "Neillia (Stephanandra) incisa \'Crispa\'",
-                    "490",
-                    "Hydrangea arborescens \'Annabelle\'"
-                ]
-            }
-        ];
+        // Week data
 
         // ----------------------------------------------------
         // Ladda in select-alternativen i UI
@@ -1198,16 +1214,16 @@
                 var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
-                var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan efter enbart detta svenska namn\">" + tree.sv + "</span>" : "<i>Saknas</i>";
-                var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att söka över hela kartan efter enbart detta vetenskapliga namn\"><i>" + tree.vet + "</i></span>";
+                var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Visa alla</em></span>" : "<i>Saknas</i>";
+                var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Vetenskapliga namn\"><i>" + tree.vet + "</i><em>Visa alla</em></span>";
 
                 // Börja bygga popup
-                var popupContent = "<b>Svenskt:</b> " + svText + "<br>" +
-                                   "<b>Vetenskapligt:</b> " + vetText + "<br>";
+                var popupContent = "" + svText + "<br>" +
+                                   "" + vetText + "<hr>";
 
                 // Om admin = true, visa trädets ID ovanför Google Maps-länken
                 if (admin) {
-                    popupContent += "<b>ID:</b> " + tree.id + "<br>";
+                    popupContent += "<small>ID:  " + tree.id + "</small><br>";
                 }
 
                 popupContent += "<a href=\"https://www.google.com/maps/place/" + tree.lat + "," + tree.lon + "/@" + tree.lat + "," + tree.lon + ",18z/data=!3m1!1e3\" target=\"_blank\">Öppna i Google Maps</a><br>" +
