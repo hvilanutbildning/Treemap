@@ -1297,13 +1297,21 @@
         // ----------------------------------------------------
 
         // När man väljer i dropdown-menyn
+        // När man väljer i dropdown-menyn
         function onListChange() {
             var selectVal = document.getElementById('listSelect').value;
             
+            // Om användaren väljer en giltig lista (inte "Välj växtlista...")
             if (selectVal !== "") {
-                latestSelectedList = selectVal; // Spara i det globala sessionst-minnet
+                latestSelectedList = selectVal; // Spara som det nya aktiva minnet
                 document.getElementById('searchInput').value = ''; // Rensa sök vid listbyte
+            } else {
+                // Om man väljer "Välj växtlista..." (nollställer i menyn)
+                latestSelectedList = "";
             }
+            
+            // VIKTIGT: Oavsett vad man väljer i listan lämnar vi "tillbaka-läget"
+            document.body.classList.remove('previous-active');
             
             filterMarkers();
         }
