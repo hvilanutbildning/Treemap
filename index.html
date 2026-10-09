@@ -1256,7 +1256,10 @@
 
                 // Hidden or visible by CSS
                 var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan<br></span>";
-                var activeListInfoHtml = "<div class=\"active-list-info\">Aktiv lista: <span id=\"popupListName\"></span></div>";
+                // Hämta det aktiva namnet från dropdown om en lista är vald
+                var selectElement = document.getElementById('listSelect');
+                var currentListText = (selectElement && selectElement.value !== "") ? selectElement.options[selectElement.selectedIndex].text : "";
+                var activeListInfoHtml = "<div class=\"active-list-info\">Växtlista <span>" + currentListText + "</span></div>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Alla</em></span>" : "<i>Saknas</i>";
@@ -1307,17 +1310,6 @@
             if (selectVal !== "") {
                 latestSelectedList = selectVal;
                 document.getElementById('searchInput').value = '';
-                
-                // Hämta texten för den valda optionen (t.ex. "Vecka 41: Barrväxter")
-                var selectedText = selectElement.options[selectElement.selectedIndex].text;
-                
-                // Uppdatera alla eventuella öppna popups med det namnet
-                var nameSpan = document.getElementById('popupListName');
-                if (nameSpan) {
-                    nameSpan.innerText = selectedText;
-                }
-                
-                // Aktivera klass för att visa att en lista är vald
                 document.body.classList.add('list-active');
             } else {
                 latestSelectedList = "";
