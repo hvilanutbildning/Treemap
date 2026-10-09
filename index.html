@@ -377,7 +377,7 @@
             {lat: 55.644794762, lon: 13.129740067, sv: 'kryddsalvia', vet: 'Salvia officinalis', id: '898'},
             {lat: 55.644476671, lon: 13.13152785, sv: 'vitpil', vet: 'Salix alba', id: '864'},
             {lat: 55.644878618, lon: 13.130312187, sv: 'tibast', vet: 'Daphne mezereum', id: '59'},
-            {lat: 55.645140321, lon: 13.131160656, sv: '', vet: 'Acer pseudoplatanus', id: '934'},
+            {lat: 55.645140321, lon: 13.131160656, sv: 'Tysklönn', vet: 'Acer pseudoplatanus', id: '934'},
             {lat: 55.643368068, lon: 13.133830247, sv: 'mongollind', vet: 'Tilia mongolica', id: '899'},
             {lat: 55.645973625, lon: 13.129810769, sv: 'kashmirrönn', vet: 'Sorbus cashmiriana', id: '69'},
             {lat: 55.64420891, lon: 13.133650539, sv: 'vinterjasmin', vet: 'Jasminum nudiflorum', id: '900'},
@@ -409,7 +409,7 @@
             {lat: 55.643423504, lon: 13.133202855, sv: 'rönnbärsapel fk GÖTEBORG', vet: 'Malus toringo fk GÖTEBORG', id: '819'},
             {lat: 55.645172938, lon: 13.130454904, sv: 'rönn', vet: 'Sorbus aucuparia', id: '162'},
             {lat: 55.644691581, lon: 13.130896039, sv: 'blåregn', vet: 'Wisteria sinensis', id: '155'},
-            {lat: 55.645250295, lon: 13.129499842, sv: '', vet: 'Acer pseudoplatanus', id: '950'},
+            {lat: 55.645250295, lon: 13.129499842, sv: 'Tysklönn', vet: 'Acer pseudoplatanus', id: '950'},
             {lat: 55.64575368, lon: 13.130587859, sv: 'pagodkornell', vet: 'Cornus controversa', id: '172'},
             {lat: 55.645216563, lon: 13.130152858, sv: 'naverlönn', vet: 'Acer campestre', id: '173'},
             {lat: 55.645954827, lon: 13.130062993, sv: 'kaukasisk vingnöt', vet: 'Pterocarya fraxinifolia', id: '175'},
@@ -1236,7 +1236,7 @@
                 var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
 
                 // Hidden or visible by CSS
-                var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan</span><br>";
+                var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan<br></span>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Visa alla</em></span>" : "<i>Saknas</i>";
