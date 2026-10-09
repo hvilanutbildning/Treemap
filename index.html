@@ -249,15 +249,16 @@
             margin-bottom: 0.5em;
         }
 
-        .leaflet-popup-content .week-link {
+        /* Active list */
+        .leaflet-popup-content .active-list-info {
             display: none;
-            color: #d9534f; /* Exempel: En avvikande färg för att synas bra */
+            color: #d9534f;
             cursor: pointer;
             font-weight: bold;
             margin-bottom: 0.5em;
         }
 
-        body.week-active .leaflet-popup-content .week-link {
+        body.list-active .leaflet-popup-content .active-list-info {
             display: block;
         }
 
@@ -277,7 +278,7 @@
         body.previous-active .leaflet-popup-content .name-link em {
             display: none;
         }
-        body.previous-active .leaflet-popup-content .week-link {
+        body.previous-active .leaflet-popup-content .active-list-info {
             display: none;
         }
 
@@ -1148,7 +1149,7 @@
         <!-- Input och Select staplas i denna div -->
         <div class="inputs-wrapper">
             <input type="text" id="searchInput" placeholder="Sök träd..." onkeyup="filterMarkers()">
-            <select id="listSelect" onchange="onListChange()">
+            <select id="listSelect" onchange="on()">
                 <option value="">Eller välj växtlista...</option>
                 <!-- Fylls på automatiskt via JavaScript -->
             </select>
@@ -1255,13 +1256,14 @@
 
                 // Hidden or visible by CSS
                 var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan<br></span>";
+                var activeListInfoHtml = "<div class=\"active-list-info\">Aktiv lista: <span id=\"popupListName\"></span></div>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Alla</em></span>" : "<i>Saknas</i>";
                 var vetText = "<span class=\"name-link\" onclick=\"quickSearch('" + safeVet + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Vetenskapliga namn\"><i>" + tree.vet + "</i><em>Alla</em></span>";
 
                 // Börja bygga popup
-                var popupContent = previousLinkHtml + svText + "<br>" +
+                var popupContent = activeListInfoHtml + previousLinkHtml + svText + "<br>" +
                                    "" + vetText + "<hr>";
 
                 // Om admin = true, visa trädets ID ovanför Google Maps-länken
@@ -1299,20 +1301,30 @@
         // När man väljer i dropdown-menyn
         // När man väljer i dropdown-menyn
         function onListChange() {
-            var selectVal = document.getElementById('listSelect').value;
+            var selectElement = document.getElementById('listSelect');
+            var selectVal = selectElement.value;
             
-            // Om användaren väljer en giltig lista (inte "Välj växtlista...")
             if (selectVal !== "") {
-                latestSelectedList = selectVal; // Spara som det nya aktiva minnet
-                document.getElementById('searchInput').value = ''; // Rensa sök vid listbyte
+                latestSelectedList = selectVal;
+                document.getElementById('searchInput').value = '';
+                
+                // Hämta texten för den valda optionen (t.ex. "Vecka 41: Barrväxter")
+                var selectedText = selectElement.options[selectElement.selectedIndex].text;
+                
+                // Uppdatera alla eventuella öppna popups med det namnet
+                var nameSpan = document.getElementById('popupListName');
+                if (nameSpan) {
+                    nameSpan.innerText = selectedText;
+                }
+                
+                // Aktivera klass för att visa att en lista är vald
+                document.body.classList.add('list-active');
             } else {
-                // Om man väljer "Välj växtlista..." (nollställer i menyn)
                 latestSelectedList = "";
+                document.body.classList.remove('list-active');
             }
             
-            // VIKTIGT: Oavsett vad man väljer i listan lämnar vi "tillbaka-läget"
             document.body.classList.remove('previous-active');
-            
             filterMarkers();
         }
         
@@ -1320,35 +1332,29 @@
         function quickSearch(searchTerm) {
             if (!searchTerm) return;
             
-            // Fyll i sökfältet och stäng aktuell popup
             document.getElementById('searchInput').value = searchTerm;
+            document.getElementById('listSelect').value = '';
             map.closePopup();
             
-            // Nollställ select-menyn så vi kan hitta alla av denna sort i HELA parken
-            document.getElementById('listSelect').value = '';
-
-            // Aktivera body-klassen eftersom vi nu har lämnat den aktiva listan för en frisökning
+            // När vi lämnar listvyn för en frisökning släcker vi "list-active" och tänder "previous-active"
+            document.body.classList.remove('list-active');
             if (latestSelectedList !== "") {
                 document.body.classList.add('previous-active');
             }
             
-            // Aktivera filtreringen
             filterMarkers();
-
-            
         }
 
         // Knappen för att hoppa tillbaka till senaste listan
         function returnToLatestList() {
             if (latestSelectedList === "") return;
             
-            // Sätt tillbaka värdet i select-menyn
             document.getElementById('listSelect').value = latestSelectedList;
-            // Töm sökfältet
             document.getElementById('searchInput').value = '';
             
-            // Stäng av "tillbaka-läget" på kroppen
+            // Återställ till standard läge för den aktiva listan
             document.body.classList.remove('previous-active');
+            document.body.classList.add('list-active');
             
             map.closePopup();
             filterMarkers();
@@ -1411,8 +1417,9 @@
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('listSelect').value = '';
-            latestSelectedList = ""; // Nollställ sessionst-minnet helt
-            document.body.classList.remove('previous-active'); // Ta bort klassen
+            latestSelectedList = "";
+            document.body.classList.remove('previous-active');
+            document.body.classList.remove('list-active'); // Nollställ allt
             
             markers.clearLayers();
             markers.addLayers(markerList);
