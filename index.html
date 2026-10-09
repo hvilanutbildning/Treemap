@@ -258,7 +258,10 @@
 
         /* När body har klassen .previous-active tänds länken upp i alla popups! */
         body.previous-active .leaflet-popup-content .previous-link {
-            display: inline-block;
+            display: block;
+        }
+        body.previous-active .leaflet-popup-content .name-link em {
+            display: none;
         }
     </style>
     <script>
@@ -1232,7 +1235,7 @@
                 var safeVet = tree.vet ? tree.vet.replace(/'/g, "\\'").replace(/"/g, "&quot;") : "";
 
                 // Hidden or visible by CSS
-                var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">« Tillbaka till växtlistan</span><br>";
+                var previousLinkHtml = "<span class=\"previous-link\" onclick=\"returnToLatestList()\">Tillbaka till växtlistan</span><br>";
 
                 // Bygg textraderna med osynlig klick-funktion (cursor:pointer hintar bara lätt om att det går att klicka)
                 var svText = tree.sv ? "<span class=\"name-link\" onclick=\"quickSearch('" + safeSv + "')\" style=\"cursor:pointer;\" title=\"Klicka för att visa alla med enbart detta Svenska namn\">" + tree.sv + "<em>Visa alla</em></span>" : "<i>Saknas</i>";
